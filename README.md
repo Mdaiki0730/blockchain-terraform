@@ -1,7 +1,7 @@
 # Wallet & Blockchain Server API Infrastructure
 Infrastructure for blockchain-server and it's wallet
 
-### Version
+## Version
 - Terraform: 1.1.7
 
 ## Overview
