@@ -26,3 +26,16 @@ variable "private_2a_cidr_block" {
 variable "private_2c_cidr_block" {
   default = "10.0.20.0/24"
 }
+
+// lb
+variable "domain" {
+  default = "garianweb.com"
+}
+
+variable "wallet_domain" {
+  default = "wallet-api.garianweb.com"
+}
+
+variable "zone_id" {
+  default = "Z02830554ETFOUHTXL7A"
+}
