@@ -36,6 +36,10 @@ variable "wallet_domain" {
   default = "wallet-api.garianweb.com"
 }
 
+variable "blockchain_domain" {
+  default = "coin-api.garianweb.com"
+}
+
 variable "zone_id" {
   default = "Z02830554ETFOUHTXL7A"
 }

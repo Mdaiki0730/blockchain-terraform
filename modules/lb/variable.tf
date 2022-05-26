@@ -6,6 +6,8 @@ variable "zone_id" {}
 
 variable "wallet_domain" {}
 
+variable "blockchain_domain" {}
+
 variable "domain" {}
 
 variable "vpc_id" {}

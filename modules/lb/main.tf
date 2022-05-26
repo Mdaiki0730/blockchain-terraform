@@ -1,5 +1,5 @@
 // route 53 setting
-resource "aws_route53_record" "www" {
+resource "aws_route53_record" "wallet" {
   zone_id = var.zone_id
   name    = var.wallet_domain
   type    = "CNAME"
@@ -7,6 +7,18 @@ resource "aws_route53_record" "www" {
   alias {
     name                   = aws_lb.wallet.dns_name
     zone_id                = aws_lb.wallet.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "blockchain" {
+  zone_id = var.zone_id
+  name    = var.blockchain_domain
+  type    = "CNAME"
+
+  alias {
+    name                   = aws_lb.blockchain.dns_name
+    zone_id                = aws_lb.blockchain.zone_id
     evaluate_target_health = true
   }
 }
@@ -44,7 +56,7 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-// lb setting
+// lb-wallet setting
 resource "aws_lb" "wallet" {
   name               = "${var.prefix}-wallet-alb"
   load_balancer_type = "application"
@@ -133,10 +145,99 @@ resource "aws_lb_listener_rule" "http_to_https" {
   }
 }
 
+// lb-blockchain-node1 setting
+resource "aws_lb" "blockchain" {
+  name               = "${var.prefix}-blockchain-alb"
+  load_balancer_type = "application"
+  internal           = false
+  idle_timeout       = 60
+  security_groups = [
+    "${aws_security_group.alb.id}"
+  ]
+  subnets = [
+    "${var.subnet_public_2a_id}",
+    "${var.subnet_public_2c_id}"
+  ]
+}
+
+resource "aws_lb_target_group" "blockchain" {
+  name        = "${var.prefix}-blockchain-alb-tg"
+  port        = 8080
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    interval            = 10
+    path                = "/health"
+    port                = 8080
+    timeout             = 5
+    matcher             = "200"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+resource "aws_lb_listener" "blockchain_https" {
+  depends_on = [
+    aws_route53_record.cert_validation
+  ]
+  load_balancer_arn = aws_lb.blockchain.arn
+
+  certificate_arn = aws_acm_certificate.cert.arn
+
+  port     = "443"
+  protocol = "HTTPS"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blockchain.id
+  }
+}
+
+resource "aws_lb_listener" "blockchain_http" {
+  port     = "80"
+  protocol = "HTTP"
+
+  load_balancer_arn = aws_lb.blockchain.arn
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      status_code  = "200"
+      message_body = "ok"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "blockchain_http_to_https" {
+  listener_arn = aws_lb_listener.blockchain_http.arn
+
+  priority = 99
+
+  action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+
+  condition {
+    host_header {
+      values = ["${var.domain}"]
+    }
+  }
+}
+
 // security group
 resource "aws_security_group" "alb" {
-  name        = "${var.prefix}-wallet-alb"
-  description = "${var.prefix} wallet alb"
+  name        = "${var.prefix}-alb"
+  description = "${var.prefix} alb"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -154,6 +255,6 @@ resource "aws_security_group" "alb" {
   }
 
   tags = {
-    Name = "${var.prefix}-wallet-alb"
+    Name = "${var.prefix}-alb"
   }
 }

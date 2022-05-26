@@ -20,6 +20,7 @@ module "lb" {
   domain              = var.domain
   zone_id             = var.zone_id
   wallet_domain       = var.wallet_domain
+  blockchain_domain   = var.blockchain_domain
   vpc_id              = module.network.vpc_id
   subnet_public_2a_id = module.network.subnet_public_2a_id
   subnet_public_2c_id = module.network.subnet_public_2c_id
