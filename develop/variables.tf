@@ -43,3 +43,8 @@ variable "blockchain_domain" {
 variable "zone_id" {
   default = "Z02830554ETFOUHTXL7A"
 }
+
+// ecs
+variable "ecr_image_uri" {
+  default = "976862162552.dkr.ecr.us-west-2.amazonaws.com/wallet-backend:1.0"
+}
