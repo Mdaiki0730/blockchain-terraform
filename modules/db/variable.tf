@@ -1,7 +1,5 @@
-// common
 variable "prefix" {}
 
-// private
 variable "db_master_username" {}
 
 variable "db_master_password" {}

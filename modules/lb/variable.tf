@@ -1,7 +1,5 @@
-// common variable
 variable "prefix" {}
 
-// private variable
 variable "zone_id" {}
 
 variable "wallet_domain" {}

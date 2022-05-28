@@ -1,7 +1,5 @@
-// common variable
 variable "prefix" {}
 
-// private variable
 variable "vpc_cidr_block" {}
 
 variable "public_2a_cidr_block" {}

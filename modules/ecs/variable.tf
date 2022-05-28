@@ -1,7 +1,5 @@
-// common
 variable "prefix" {}
 
-// private
 variable "ecr_image_uri" {}
 
 variable "vpc_id" {}

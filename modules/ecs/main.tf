@@ -201,7 +201,6 @@ resource "aws_ecs_service" "main" {
     security_groups = ["${aws_security_group.ecs.id}"]
   }
 
-  # ECSタスクの起動後に紐付けるELBターゲットグループ
   load_balancer {
     target_group_arn = var.aws_lb_target_group_arn
     container_name   = "wallet-backend"
