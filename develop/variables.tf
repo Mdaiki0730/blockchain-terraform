@@ -40,6 +40,10 @@ variable "blockchain_domain" {
   default = "coin-api.garianweb.com"
 }
 
+variable "frontend_domain" {
+  default = "wallet.garianweb.com"
+}
+
 variable "zone_id" {
   default = "Z02830554ETFOUHTXL7A"
 }
@@ -47,6 +51,11 @@ variable "zone_id" {
 // ecs
 variable "ecr_image_uri" {
   default = "976862162552.dkr.ecr.us-west-2.amazonaws.com/wallet-backend:1.0"
+}
+
+// s3
+variable "hosted_bucket_name" {
+  default = "wallet-frontend-web-bucket"
 }
 
 // db

@@ -26,6 +26,15 @@ module "lb" {
   subnet_public_2c_id = module.network.subnet_public_2c_id
 }
 
+module "cloudfront" {
+  source = "../modules/cloudfront"
+
+  prefix             = var.prefix
+  zone_id            = var.zone_id
+  frontend_domain    = var.frontend_domain
+  hosted_bucket_name = var.hosted_bucket_name
+}
+
 module "ecs" {
   source = "../modules/ecs"
 
