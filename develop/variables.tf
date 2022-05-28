@@ -48,3 +48,8 @@ variable "zone_id" {
 variable "ecr_image_uri" {
   default = "976862162552.dkr.ecr.us-west-2.amazonaws.com/wallet-backend:1.0"
 }
+
+// db
+variable "db_master_username" {}
+
+variable "db_master_password" {}

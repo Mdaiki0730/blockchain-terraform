@@ -38,3 +38,15 @@ module "ecs" {
   route_table_private_2c_id = module.network.route_table_private_2c_id
   aws_lb_target_group_arn   = module.lb.aws_lb_target_group_arn
 }
+
+module "db" {
+  source = "../modules/db"
+
+  prefix                    = var.prefix
+  db_master_username        = var.db_master_username
+  db_master_password        = var.db_master_password
+  vpc_id                    = module.network.vpc_id
+  subnet_private_2a_id      = module.network.subnet_private_2a_id
+  subnet_private_2c_id      = module.network.subnet_private_2c_id
+  allowed_security_group_id = module.ecs.ecs_security_group_id
+}
