@@ -3,24 +3,16 @@ resource "aws_route53_record" "wallet" {
   zone_id = var.zone_id
   name    = var.wallet_domain
   type    = "CNAME"
-
-  alias {
-    name                   = aws_lb.wallet.dns_name
-    zone_id                = aws_lb.wallet.zone_id
-    evaluate_target_health = true
-  }
+  ttl     = 300
+  records = [aws_lb.wallet.dns_name]
 }
 
 resource "aws_route53_record" "blockchain" {
   zone_id = var.zone_id
   name    = var.blockchain_domain
   type    = "CNAME"
-
-  alias {
-    name                   = aws_lb.blockchain.dns_name
-    zone_id                = aws_lb.blockchain.zone_id
-    evaluate_target_health = true
-  }
+  ttl     = 300
+  records = [aws_lb.blockchain.dns_name]
 }
 
 resource "aws_route53_record" "cert_validation" {
