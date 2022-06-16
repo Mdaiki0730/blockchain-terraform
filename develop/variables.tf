@@ -1,5 +1,5 @@
 variable "prefix" {
-  default = "blockchain-dev"
+  default = "garicoin"
 }
 
 variable "region" {
@@ -49,8 +49,12 @@ variable "zone_id" {
 }
 
 // ecs
-variable "ecr_image_uri" {
+variable "ecr_wallet_image_uri" {
   default = "976862162552.dkr.ecr.us-west-2.amazonaws.com/wallet-backend:1.0"
+}
+
+variable "ecr_blockchain_image_uri" {
+  default = "976862162552.dkr.ecr.us-west-2.amazonaws.com/blockchain-server:1.0"
 }
 
 // s3

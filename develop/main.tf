@@ -38,14 +38,16 @@ module "cloudfront" {
 module "ecs" {
   source = "../modules/ecs"
 
-  prefix                    = var.prefix
-  ecr_image_uri             = var.ecr_image_uri
-  vpc_id                    = module.network.vpc_id
-  subnet_private_2a_id      = module.network.subnet_private_2a_id
-  subnet_private_2c_id      = module.network.subnet_private_2c_id
-  route_table_private_2a_id = module.network.route_table_private_2a_id
-  route_table_private_2c_id = module.network.route_table_private_2c_id
-  aws_lb_target_group_arn   = module.lb.aws_lb_target_group_arn
+  prefix                             = var.prefix
+  ecr_wallet_image_uri               = var.ecr_wallet_image_uri
+  ecr_blockchain_image_uri           = var.ecr_blockchain_image_uri
+  vpc_id                             = module.network.vpc_id
+  subnet_private_2a_id               = module.network.subnet_private_2a_id
+  subnet_private_2c_id               = module.network.subnet_private_2c_id
+  route_table_private_2a_id          = module.network.route_table_private_2a_id
+  route_table_private_2c_id          = module.network.route_table_private_2c_id
+  aws_lb_wallet_target_group_arn     = module.lb.aws_lb_wallet_target_group_arn
+  aws_lb_blockchain_target_group_arn = module.lb.aws_lb_blockchain_target_group_arn
 }
 
 module "db" {

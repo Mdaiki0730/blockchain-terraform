@@ -131,8 +131,12 @@ resource "aws_cloudwatch_log_group" "wallet-backend" {
 }
 
 // ecs setting
-resource "aws_ecs_task_definition" "main" {
-  family = var.prefix
+resource "aws_ecs_cluster" "main" {
+  name = var.prefix
+}
+
+resource "aws_ecs_task_definition" "wallet" {
+  family = "${var.prefix}-wallet"
 
   requires_compatibilities = ["FARGATE"]
 
@@ -151,7 +155,7 @@ resource "aws_ecs_task_definition" "main" {
 [
   {
     "name": "wallet-backend",
-    "image": "${var.ecr_image_uri}",
+    "image": "${var.ecr_wallet_image_uri}",
 		"logConfiguration": {
       "logDriver": "awslogs",
       "options": {
@@ -178,6 +182,18 @@ resource "aws_ecs_task_definition" "main" {
       {
         "name": "MONGO_DB_URI",
         "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/MONGO_DB_URI"
+      },
+      {
+        "name": "JWT_SIGNATURE",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/JWT_SIGNATURE"
+      },
+      {
+        "name": "TOKEN_DURATION",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/TOKEN_DURATION"
+      },
+      {
+        "name": "BLOCKCHAIN_SERVER_DOMAIN",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/BLOCKCHAIN_SERVER_DOMAIN"
       }
 		]
   }
@@ -185,25 +201,102 @@ resource "aws_ecs_task_definition" "main" {
 TASK_DEFINITION
 }
 
-resource "aws_ecs_cluster" "main" {
-  name = var.prefix
-}
-
-resource "aws_ecs_service" "main" {
-  name = var.prefix
+resource "aws_ecs_service" "wallet" {
+  name = "${var.prefix}-wallet"
 
   cluster         = aws_ecs_cluster.main.name
   launch_type     = "FARGATE"
   desired_count   = "1"
-  task_definition = aws_ecs_task_definition.main.arn
+  task_definition = aws_ecs_task_definition.wallet.arn
   network_configuration {
     subnets         = ["${var.subnet_private_2a_id}", "${var.subnet_private_2c_id}"]
     security_groups = ["${aws_security_group.ecs.id}"]
   }
 
   load_balancer {
-    target_group_arn = var.aws_lb_target_group_arn
+    target_group_arn = var.aws_lb_wallet_target_group_arn
     container_name   = "wallet-backend"
+    container_port   = "8080"
+  }
+}
+
+resource "aws_ecs_task_definition" "blockchain" {
+  family = "${var.prefix}-blockchain"
+
+  requires_compatibilities = ["FARGATE"]
+
+  cpu    = "256"
+  memory = "512"
+
+  network_mode = "awsvpc"
+
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
+
+  container_definitions = <<TASK_DEFINITION
+[
+  {
+    "name": "blockchain-server",
+    "image": "${var.ecr_blockchain_image_uri}",
+		"logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "us-west-2",
+        "awslogs-stream-prefix": "blockchain-server",
+        "awslogs-group": "/ecs/project/dev/blockchain-server"
+      }
+    },
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 8080
+      }
+    ],
+		"secrets": [
+			{
+        "name": "REST_PORT",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/REST_PORT"
+      },
+      {
+        "name": "GRPC_PORT",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/GRPC_PORT"
+      },
+      {
+        "name": "JWT_SIGNATURE",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/JWT_SIGNATURE"
+      },
+      {
+        "name": "TOKEN_DURATION",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/TOKEN_DURATION"
+      },
+      {
+        "name": "MINERS_BLOCKCHAIN_ADDRESS",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/MINERS_BLOCKCHAIN_ADDRESS"
+      }
+		]
+  }
+]
+TASK_DEFINITION
+}
+
+resource "aws_ecs_service" "blockchain" {
+  name = "${var.prefix}-blockchain"
+
+  cluster         = aws_ecs_cluster.main.name
+  launch_type     = "FARGATE"
+  desired_count   = "1"
+  task_definition = aws_ecs_task_definition.blockchain.arn
+  network_configuration {
+    subnets         = ["${var.subnet_private_2a_id}", "${var.subnet_private_2c_id}"]
+    security_groups = ["${aws_security_group.ecs.id}"]
+  }
+
+  load_balancer {
+    target_group_arn = var.aws_lb_blockchain_target_group_arn
+    container_name   = "blockchain-server"
     container_port   = "8080"
   }
 }

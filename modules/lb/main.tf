@@ -89,7 +89,7 @@ resource "aws_lb_target_group" "wallet" {
   }
 }
 
-resource "aws_lb_listener" "https" {
+resource "aws_lb_listener" "wallet_https" {
   depends_on = [
     aws_route53_record.cert_validation
   ]
@@ -106,7 +106,29 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-resource "aws_lb_listener" "http" {
+resource "aws_lb_listener_rule" "wallet_in_maintenance" {
+  listener_arn = aws_lb_listener.wallet_https.arn
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "application/json"
+      status_code  = "503"
+      message_body = <<MESSAGE
+      {"msg": "in maintenance"}
+MESSAGE
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+}
+
+resource "aws_lb_listener" "wallet_http" {
   port     = "80"
   protocol = "HTTP"
 
@@ -123,8 +145,8 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-resource "aws_lb_listener_rule" "http_to_https" {
-  listener_arn = aws_lb_listener.http.arn
+resource "aws_lb_listener_rule" "wallet_http_to_https" {
+  listener_arn = aws_lb_listener.wallet_http.arn
 
   priority = 99
 
@@ -192,6 +214,28 @@ resource "aws_lb_listener" "blockchain_https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.blockchain.id
+  }
+}
+
+resource "aws_lb_listener_rule" "blockchain_in_maintenance" {
+  listener_arn = aws_lb_listener.blockchain_https.arn
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "application/json"
+      status_code  = "503"
+      message_body = <<MESSAGE
+      {"msg": "in maintenance"}
+MESSAGE
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
   }
 }
 
