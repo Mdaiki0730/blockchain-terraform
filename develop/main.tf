@@ -2,6 +2,11 @@ provider "aws" {
   region = var.region
 }
 
+provider "aws" {
+  alias  = "virginia"
+  region = "us-east-1"
+}
+
 module "network" {
   source = "../modules/network"
 
@@ -31,8 +36,13 @@ module "cloudfront" {
 
   prefix             = var.prefix
   zone_id            = var.zone_id
+  domain             = var.domain
   frontend_domain    = var.frontend_domain
   hosted_bucket_name = var.hosted_bucket_name
+  providers = {
+    aws          = aws
+    aws.virginia = aws.virginia
+  }
 }
 
 module "ecs" {
