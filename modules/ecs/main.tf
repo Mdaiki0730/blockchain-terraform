@@ -129,6 +129,10 @@ resource "aws_cloudwatch_log_group" "wallet-backend" {
   name              = "/ecs/project/dev/wallet-backend"
   retention_in_days = 30
 }
+resource "aws_cloudwatch_log_group" "blockchain-server" {
+  name              = "/ecs/project/dev/blockchain-server"
+  retention_in_days = 30
+}
 
 // ecs setting
 resource "aws_ecs_cluster" "main" {
