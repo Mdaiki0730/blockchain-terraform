@@ -120,6 +120,21 @@ MESSAGE
   }
 }
 
+resource "aws_lb_listener_rule" "wallet_default_action" {
+  listener_arn = aws_lb_listener.wallet_https.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.wallet.id
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+}
+
 resource "aws_lb_listener" "wallet_http" {
   port     = "80"
   protocol = "HTTP"
@@ -222,6 +237,21 @@ resource "aws_lb_listener_rule" "blockchain_in_maintenance" {
       {"msg": "in maintenance"}
 MESSAGE
     }
+  }
+
+  condition {
+    path_pattern {
+      values = ["*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "blockchain_default_action" {
+  listener_arn = aws_lb_listener.blockchain_https.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blockchain.id
   }
 
   condition {
