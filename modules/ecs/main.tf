@@ -198,6 +198,10 @@ resource "aws_ecs_task_definition" "wallet" {
       {
         "name": "BLOCKCHAIN_SERVER_DOMAIN",
         "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/BLOCKCHAIN_SERVER_DOMAIN"
+      },
+      {
+        "name": "ALLOWED_ORIGINS",
+        "valueFrom": "arn:aws:ssm:us-west-2:976862162552:parameter/ALLOWED_ORIGINS"
       }
 		]
   }
